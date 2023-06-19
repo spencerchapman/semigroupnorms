@@ -1,4 +1,4 @@
-def t_length(v,t):
+def T_Length(v,t):
     
     # Computes the t-length factorization of
     # v := (m_1,m_2,...,m_k), where m_i are exponents of atoms a_i
@@ -11,15 +11,11 @@ def t_length(v,t):
     if(t <= 1):
         return s
     return s ** (t ** -1)
-def T_Length_Set(x,t):
-    F = S.Factorizations(x)
-    Lengths = []
-    for v in F:
-        Lengths.append(t_length(v,t))
-    return sorted(Lengths)
-def T_Max_Length(x,t):
-    return T_Length_Set(x,t)[-1]
-def T_Min_Length(x,t):
-    return T_Length_Set(x,t)[0]
-def T_Elasticity(x,t):
-    return T_Max_Length(x,t)/T_Min_Length(x,t)
+def T_LengthSet(S,x,t):
+    return sorted(list(Set([T_Length(f,t) for f in S.Factorizations(n)])))
+def T_MaxLength(S,x,t):
+    return T_LengthSet(S,x,t)[-1]
+def T_MinLength(S,x,t):
+    return T_LengthSet(S,x,t)[0]
+def T_Elasticity(S,x,t):
+    return T_MaxLength(S,x,t)/T_MinLength(S,x,t)
