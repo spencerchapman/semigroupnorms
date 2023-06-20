@@ -19,3 +19,37 @@ def T_MinLength(S,x,t):
     return T_LengthSet(S,x,t)[0]
 def T_Elasticity(S,x,t):
     return T_MaxLength(S,x,t)/T_MinLength(S,x,t)
+def T_FirstNTerms(S,n):
+    n_terms = []
+    i = 1
+    while(len(n_terms)!=n):
+        if(S.Contains(i)):
+            n_terms.append(i)
+        i+=1
+    return n_terms
+def T_MaxPowersOfElement(S,x,t,n):
+    F = S 
+    F.FactorizationsUpToElement(n*x)
+    PowerMap = [T_MaxLength(F,i*x,t) for i in [0..n]]
+    del F
+    return PowerMap
+def T_MinPowersOfElement(S,x,t,n):
+    F = S 
+    F.FactorizationsUpToElement(n*x)
+    PowerMap = [T_MinLength(F,i*x,t) for i in [0..n]]
+    del F
+    return PowerMap
+def T_FullMaxPowers(S,m,t,n):
+    SemigroupTerms = T_FirstNTerms(S,m)
+    F = S
+    F.FactorizationsUpToElement(n*SemigroupTerms[-1])
+    FullPowers = [[T_MaxLength(F,i*x,t) for i in [0..n]] for x in SemigroupTerms]
+    del F
+    return FullPowers
+def T_FullMinPowers(S,m,t,n):
+    SemigroupTerms = T_FirstNTerms(S,m)
+    F = S
+    F.FactorizationsUpToElement(n*SemigroupTerms[-1])
+    FullPowers = [[T_MinLength(F,i*x,t) for i in [0..n]] for x in SemigroupTerms]
+    del F
+    return FullPowers
