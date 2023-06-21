@@ -20,7 +20,8 @@ def T_MaxLength(S,x,t):
 def T_MinLength(S,x,t):
     return T_LengthSet(S,x,t)[0]
 def T_Elasticity(S,x,t):
-    return T_MaxLength(S,x,t)/T_MinLength(S,x,t)
+    L = T_LengthSet(S,x,t)
+    return L[-1]/L[0]
 def T_FirstNTerms(S,n):
     n_terms = []
     i = 1
@@ -32,13 +33,13 @@ def T_FirstNTerms(S,n):
 def T_MaxPowersOfElement(S,x,t,n):
     F = S 
     F.FactorizationsUpToElement(n*x)
-    PowerMap = [T_MaxLength(F,i*x,t) for i in [0..n]]
+    PowerMap = [T_MaxLength(F,i*x,t) if F.Contains(i*x) else 0 for i in [0..n]]
     del F
     return PowerMap
 def T_MinPowersOfElement(S,x,t,n):
     F = S 
     F.FactorizationsUpToElement(n*x)
-    PowerMap = [T_MinLength(F,i*x,t) for i in [0..n]]
+    PowerMap = [T_MinLength(F,i*x,t) if F.Contains(i*x) else 0 for i in [0..n]]
     del F
     return PowerMap
 def T_FullMaxPowers(S,m,t,n):
