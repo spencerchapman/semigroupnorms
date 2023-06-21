@@ -1,5 +1,11 @@
 # semigroupnorms
 
+## Installation
+```python
+load("https://raw.githubusercontent.com/spencerchapman/semigroupnorms/main/tnorms.sage")
+```
+
+
 ## Usage
 
 ### T_Length(v,t)
@@ -29,3 +35,6 @@ Analogous to above
 ### T_FullMaxPowers(S,m,t,n)
 Returns a matrix of the powers of the first m elements of S, from 0 up to n
 Each column is T_MaxPowersOfElement(S,x,t,n), for the first m terms x in S
+
+### T_FullMinPowers(S,m,t,n)
+Analogous to above
