@@ -30,6 +30,8 @@ def T_FirstNTerms(S,n):
             n_terms.append(i)
         i+=1
     return n_terms
+def FirstTermsUpToN(S,n):
+    return list(i for i in [0..n] if S.Contains(i))
 def T_MaxPowersOfElement(S,x,t,n):
     F = S 
     F.FactorizationsUpToElement(n*x)
