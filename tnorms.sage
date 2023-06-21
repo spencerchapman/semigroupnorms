@@ -13,6 +13,8 @@ def T_Length(v,t):
     return s ** (t ** -1)
 def T_LengthSet(S,x,t):
     return sorted(list(Set([T_Length(f,t) for f in S.Factorizations(x)])))
+def T_ElementsUpToN(S,n):
+    return list(i for i in [1..n] if S.Contains(i))
 def T_MaxLength(S,x,t):
     return T_LengthSet(S,x,t)[-1]
 def T_MinLength(S,x,t):
