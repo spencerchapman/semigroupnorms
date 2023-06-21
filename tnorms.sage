@@ -56,3 +56,28 @@ def T_FullMinPowers(S,m,t,n):
     FullPowers = [[T_MinLength(F,i*x,t) for i in [0..n]] for x in SemigroupTerms]
     del F
     return FullPowers
+def T_PandasFullMaxPowers(S,m,t,n):
+    df = pd.DataFrame(T_FullMaxPowers(S,m,t,n))
+    df = df[df.columns[1:]].T
+    df.columns = ['L_t('+str(i)+'n)' for i in T_FirstNTerms(S,m)]
+    df.index.name = 'n'
+    return df
+def T_PandasFullMinPowers(S,m,t,n):
+    df = pd.DataFrame(T_FullMinPowers(S,m,t,n))
+    df = df[df.columns[1:]].T
+    df.columns = ['l_'+str(t)+'('+str(i)+'n)' for i in T_FirstNTerms(S,m)]
+    df.index.name = 'n'
+    return df
+def T_CSVFullMaxPowers(S,m,t,n):
+    df = T_PandasFullMaxPowers(S,m,t,n)
+    try:
+        os.makedirs('csv_exports',exist_ok=True)
+        s = 'csv_exports/'+'_'.join(str(x) for x in S.gens)+'T_'+str(t)+'.csv'
+        df.to_csv(s)
+        print('exported to '+s)
+    except:
+        print('error')
+def T_CoordinateMaxPowers(S,x,t,n):
+    return list(zip([0..n],T_MaxPowersOfElement(S,x,t,n)))
+def T_CoordinateMinPowers(S,x,t,n):
+    return list(zip([0..n],T_MinPowersOfElement(S,x,t,n)))
