@@ -83,3 +83,29 @@ def T_CoordinateMaxPowers(S,x,t,n):
     return list(zip([0..n],T_MaxPowersOfElement(S,x,t,n)))
 def T_CoordinateMinPowers(S,x,t,n):
     return list(zip([0..n],T_MinPowersOfElement(S,x,t,n)))
+def t0(v):
+    return sum((a != 0) for a in v)
+# Thank you Eric for these! VVV
+def SupportUpToX(S,x):
+    G = S.gens
+    Basis = [2^i for i in range(len(G))]
+    SupportDict = {0:set([0])}
+    for m in range(1,x+1):
+        mfact = set()
+        for i in range(len(G)):
+            k = m-G[i]
+            if k>=0:
+                mfact = mfact.union(set([Basis[i] | f for f in SupportDict[k]]))
+            #print(m,mfact)
+        SupportDict[m] = mfact
+    return SupportDict
+def LZUpToX(S,x):
+    LDict = []
+    U = SupportUpToX(S,x)
+    for i in range(x+1):
+        LDict.append( set([t0([1 if ch == "1" else 0 for ch in bin(s)[2:]]) for s in U[i]]) )
+    return LDict
+def T_ZeroPowerLengths(S,x,n):
+    FullLengths = LZUpToX(S,x*n)
+    PowerLengths = [FullLengths[i*x] for i in range(1,n+1)]
+    return PowerLengths
