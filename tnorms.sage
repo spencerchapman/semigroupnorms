@@ -1,4 +1,5 @@
-from itertools import combinations
+import itertools
+import random
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -114,6 +115,75 @@ def T_ZeroPowerLengths(S,x,n):
     PowerLengths = [FullLengths[i*x] for i in range(1,n+1)]
     return PowerLengths
 
+
+####################################################################################################
+
+import itertools
+import random
+
+def norm(t,vec): #from James
+    v = list(vec)
+    if t!= 0:
+        powers = [a^t for a in v]
+    else:
+        powers = [0 if a==0 else 1 for a in v]
+    if t >= 1:
+        return((sum(powers))^(1/t))
+    else:
+        return(sum(powers))
+
+def D_delta(vec):
+    svec = sorted(vec)
+    return set([svec[i+1]-svec[i] for i in range(len(svec)-1)])
+    #for i in range(len(svec)-1):
+     #   dset.add(svec[i+1]-svec[i])
+    #return dset
+
+def D_DeltaCheck(S,r=1000,t=0):
+    S.FactorizationsUpToElement(r)
+    F = [S.Factorizations(i) for i in range(r+1)]
+    L = [e if e==[] else set([norm(t,vec) for vec in e]) for e in F]
+    D = [D_delta(vec) for vec in L]
+    SDelta = set().union(*D)
+    pts = []
+    for i in range(r+1):
+        for d in D[i]:
+            pts.append([i,d])
+    return (SDelta,pts,D,L)
+
+def D_ImprovedDeltaCheck(S,r=1000):
+    L = LZUpToX(S,r)
+    D = [D_delta(vec) for vec in L]
+    SDelta = set().union(*D)
+    pts = []
+    for i in range(r+1):
+        for d in D[i]:
+            pts.append([i,d])
+    return (SDelta,pts,D,L)
+
+def D_Nablas(S):
+    B = S.BettiElements()
+    X = SupportUpToX(S, max(B))
+    N = {}
+    for b in B:
+        G = Graph()
+        G.add_vertices(X[b])
+        for e in itertools.combinations(X[b],2):
+            if (e[0] & e[1] > 0):
+                G.add_edge(e[0],e[1])
+        N[b] = G
+    return B,N
+
+def D_NBI(bitwiseInteger):
+    if bitwiseInteger == 0:
+        return 0
+    else:
+        return norm(0,[1 if ch == "1" else 0 for ch in bin(bitwiseInteger)[2:]])
+def D_M(S):
+    N = D_Nablas(S)
+    B = N[0]
+    N = N[1]
+    return max(max([min([NBI(v) for v in C]) for C in N[b].connected_components()]) for b in B)
 # Start A-Team Section
 # --------------------
 def tLengthSet(S: NumericalSemigroup, n: int, t: float) -> list[float]:
@@ -346,7 +416,7 @@ def tAllFactorizationsRatioPlot(S: NumericalSemigroup, n: int, start: float=0, s
     """
     t_vals = np.linspace(start, stop, num=samples)
     fig, ax = plt.subplots()
-    for factorization_1, factorization_2 in combinations(S.Factorizations(n), 2):
+    for factorization_1, factorization_2 in itertools.combinations(S.Factorizations(n), 2):
         lengths_1 = tFactorizationLengths(factorization_1, t_vals)
         lengths_2 = tFactorizationLengths(factorization_2, t_vals)
         ax.plot(t_vals, [max(pair)/min(pair) for pair in zip(lengths_1,lengths_2)], label=f'{factorization_1} and {factorization_2}')
