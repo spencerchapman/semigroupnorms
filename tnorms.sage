@@ -1,3 +1,7 @@
+from itertools import combinations
+import matplotlib.pyplot as plt
+import numpy as np
+
 def T_Length(v,t):
     
     # Computes the t-length factorization of
@@ -109,4 +113,250 @@ def T_ZeroPowerLengths(S,x,n):
     FullLengths = LZUpToX(S,x*n)
     PowerLengths = [FullLengths[i*x] for i in range(1,n+1)]
     return PowerLengths
-#stuff
+
+# Start A-Team Section
+# --------------------
+def tLengthSet(S: NumericalSemigroup, n: int, t: float) -> list[float]:
+    """Return a list of factorization t-lengths of n in S.
+    
+    Parameters
+    ----------
+    S : NumericalSemigroup
+    n : int
+        An element of S
+    t : float
+        t-length
+    
+    Returns
+    -------
+    list[float]
+        The list of factorization t-lengths of n in S.
+    """
+    if t:
+        if t > 1:
+            return list(sum(num**t for num in factorization)**(1/t) for factorization in S.Factorizations(n))
+        return list(sum(num**t for num in factorization) for factorization in S.Factorizations(n))
+    return list(len(factorization) - factorization.count(0) for factorization in S.Factorizations(n))
+
+def tMaxLength(S: NumericalSemigroup, n: int, t: float) -> float:
+    """Return the maximum t-length factorization of n in S.
+
+    Parameters
+    ----------
+    S : NumericalSemigroup
+    n : int
+        An element of S
+    t : float
+        t-length
+    
+    Returns
+    -------
+    float
+        The maximum t-length factorization of n in S.
+    """
+    return max(tLengthSet(S,n,t))
+
+def tMinLength(S: NumericalSemigroup, n: int, t: float) -> float:
+    """Return the minimum t-length factorization of n in S.
+    
+    Parameters
+    ----------
+    S : NumericalSemigroup
+    n : int
+        An element of S
+    t : float
+        t-length
+    
+    Returns
+    -------
+    float
+        The minimum t-length factorization of n in S.
+    """
+    return min(tLengthSet(S,n,t))
+
+def tElasticity(S: NumericalSemigroup, n: int, t: float) -> float:
+    """Return the t-elasticity of n in S.
+
+    Parameters
+    ----------
+    S : NumericalSemigroup
+    n : int
+        An element of S
+    t : float
+        t-length
+    
+    Returns
+    -------
+    float
+        The t-elasticity of n in S.
+    """
+    lengths = tLengthSet(S,n,t)
+    return max(lengths)/min(lengths)
+    
+def tFactorizationLengths(factorization: list[int], t_vals: list[float]) -> list[float]:
+    """Return a list of the t-length of factorization for t values in t_vals.
+    
+    Parameters
+    ----------
+    factorization : list[int]
+        A factorization
+    t_vals : list[float]
+        A list of t-values
+
+    Returns
+    -------
+    list[float]
+        A list of factorization t-lengths for each t-value in the same order as t_vals.
+    """
+    lengths = []
+    for t in t_vals:
+        if t:
+            if t > 1:
+                lengths.append(sum(num**t for num in factorization)**(1/t))
+                continue
+            lengths.append(sum(num**t for num in factorization))
+            continue
+        lengths.append(len(factorization) - factorization.count(0))
+    return lengths
+
+def tLengthPlot(S: NumericalSemigroup, n: int, start: float=0, stop: float=3, samples: int=200, vrange: list[float,float]=None) -> None:
+    """Plot the factorization t-lengths of n as t varies from start to stop.
+    
+    Parameters
+    ----------
+    S : NumericalSemigroup
+    n : int
+        An element of S
+    start : float
+        The minimum t-value
+    stop : float
+        The maximum t-value
+    samples : int
+        The number of t-values between start and stop (inclusive) sampled.
+    vrange : list[float,float]
+        An interval of y-values to show on the plot
+    
+    Returns
+    -------
+    None
+    """
+    t_vals = np.linspace(start, stop, num=samples)
+    fig, ax = plt.subplots()
+    for factorization in S.Factorizations(n):
+        ax.plot(t_vals, tFactorizationLengths(factorization,t_vals), label=str(factorization))
+    if vrange is not None:
+        ax.set_ylim(vrange[0], vrange[1])
+    ax.legend()
+    ax.set_title(f'Factorization $t$-length for {n} in {S.gens}')
+    ax.set_xlabel(r'$t$')
+    ax.set_ylabel(r'$t$-length')
+    plt.show()
+
+def tElasticityPlot(S: NumericalSemigroup, n: int, start: float=0, stop: float=3, sample: int=200, vrange: list[float,float]=None) -> None:
+    """Plot the t-elasticity of n as t varies from start to stop.
+    
+    Parameters
+    ----------
+    S : NumericalSemigroup
+    n : int
+        An element of S
+    start : float
+        The minimum t-value
+    stop : float
+        The maximum t-value
+    samples : int
+        The number of t-values between start and stop (inclusive) sampled.
+    vrange : list[float,float]
+        An interval of y-values to show on the plot
+
+    Returns
+    -------
+        None
+    """
+    t_vals = np.linspace(start, stop, num=sample)
+    t_elasticities = []
+    for t in t_vals:
+        lengths = tLengthSet(S, n, t)
+        t_elasticities.append(max(lengths)/min(lengths))
+    fig, ax = plt.subplots()
+    ax.plot(t_vals, t_elasticities)
+    if vrange is not None:
+        ax.set_ylim(vrange[0], vrange[1])
+    ax.set_title(f'$t$-Elastisity of {n} in {S.gens}')
+    ax.set_xlabel('$t$')
+    ax.set_ylabel(f'$\\rho_t({n})$')
+    plt.show()
+
+def tFactorizationRatioPlot(factorization_1: list[int], factorization_2: list[int], start: float=0, stop: float=3, samples: int=200, vrange: list[float,float]=None) -> None:
+    """Plot the ratios of factorization_1 and factorization_2 t-lengths as t varies from start to stop.
+    
+    Parameters
+    ----------
+    factorization_1 : list[int]
+    factorization_2 : list[int]
+    start : float
+        The minimum t-value
+    stop : float
+        The maximum t-value
+    samples : int
+        The number of t-values between start and stop (inclusive) sampled.
+    vrange : list[float,float]
+        An interval of y-values to show on the plot
+    
+    Returns
+    -------
+        None
+    """
+    t_vals = np.linspace(start,stop, num=samples)
+    lengths_1 = tFactorizationLengths(factorization_1, t_vals)
+    lengths_2 = tFactorizationLengths(factorization_2, t_vals)
+    ratio_1 = [pair[0]/pair[1] for pair in zip(lengths_1,lengths_2)]
+    ratio_2 = [pair[1]/pair[0] for pair in zip(lengths_1,lengths_2)]
+    fig, ax = plt.subplots()
+    ax.plot(t_vals, ratio_1, label=f'$t$-length of {factorization_1} / $t$-length of {factorization_2}')
+    ax.plot(t_vals, ratio_2, label=f'$t$-length of {factorization_2} / $t$-length of {factorization_1}')
+    if vrange is not None:
+        ax.set_ylim(vrange[0], vrange[1])
+    ax.set_title(f'Ratio of $t$-length of {factorization_1} and {factorization_2}')
+    ax.set_xlabel('$t$')
+    ax.set_ylabel('Ratio')
+    ax.legend()
+    plt.show()
+
+def tAllFactorizationsRatioPlot(S: NumericalSemigroup, n: int, start: float=0, stop: float=3, samples: int=200, vrange: list[float,float]=None) -> None:
+    """Plot the maximum ratio of all pairs of t-length factorizations of n as t varies from start to stop.
+    
+    Parameters
+    ----------
+    S : NumericalSemigroup
+    n : int
+        An element of S
+    start : float
+        The minimum t-value
+    stop : float
+        The maximum t-value
+    samples : int
+        The number of t-values between start and stop (inclusive) sampled.
+    vrange : list[float,float]
+        An interval of y-values to show on the plot
+    
+    Returns
+    -------
+        None
+    """
+    t_vals = np.linspace(start, stop, num=samples)
+    fig, ax = plt.subplots()
+    for factorization_1, factorization_2 in combinations(S.Factorizations(n), 2):
+        lengths_1 = tFactorizationLengths(factorization_1, t_vals)
+        lengths_2 = tFactorizationLengths(factorization_2, t_vals)
+        ax.plot(t_vals, [max(pair)/min(pair) for pair in zip(lengths_1,lengths_2)], label=f'{factorization_1} and {factorization_2}')
+    ax.plot(t_vals, [1 for i in range(samples)], label='factorization and itself')
+    if vrange is not None:
+        ax.set_ylim(vrange[0], vrange[1])
+    ax.set_title(f'Maximum Factorization Ratios for {n} in {S.gens}')
+    ax.set_xlabel('$t$')
+    ax.set_ylabel('Maximum Factorization Ratio')
+    ax.legend(bbox_to_anchor=(1,1))
+    plt.show()
+# End A-Team Section
+# ------------------
