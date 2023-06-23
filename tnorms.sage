@@ -109,3 +109,4 @@ def T_ZeroPowerLengths(S,x,n):
     FullLengths = LZUpToX(S,x*n)
     PowerLengths = [FullLengths[i*x] for i in range(1,n+1)]
     return PowerLengths
+#stuff
