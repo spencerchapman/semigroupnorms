@@ -16,6 +16,11 @@ def T_Length(v,t):
     if(t <= 1):
         return s
     return s ** (t ** -1)
+def T_Length_Integer(v,t: int):
+    return sum([m**t for m in v])
+def T_LengthSetIntegerT(S,x,t):
+    return sorted([T_Length_Integer(v,t) for v in S.Factorizations(x)])
+
 def T_LengthSet(S,x,t):
     return sorted(list(Set([T_Length(f,t) for f in S.Factorizations(x)])))
 def T_ElementsUpToN(S,n):
